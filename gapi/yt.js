@@ -9,30 +9,47 @@ class YTubePl extends YouTubeAPI {
      * 
      * @param {boolean} mine This parameter can only be used in a properly authorized request.
      * @param {string} [channelId] This parameter can only be used in a properly authorized request.
-     * @returns {Object}
+     * @returns {Promise<Array>}
      */
     async list(mine = true, channelId) {
 
-        const options = {
-            part: "snippet,contentDetails"           
-        };
+        const 
+            options = {
+                part: "snippet,status",
+                maxResults: 50
+            },
+            dataPages = []
+        ;
 
         if (arguments.length > 1) {
             options.channelId = channelId;
         } else {
             options.mine = mine
         }
+        
+        while (true) {
+            const data = await this.exec('playlists', 'list', options);
+            dataPages.push(data);
 
-        return await this.exec('playlists', 'list', options);
+            if ( !Object.hasOwn(data, 'nextPageToken') ) {
+                break;
+            }
+
+            options.pageToken = data.nextPageToken;
+        }
+
+        return dataPages;
     }
 
     /**
      * 
      * @param {string} title Playlist title
      * @param {string} privacyStatus private or public or unlisted
-     * @returns {Object}
+     * @param {string} description
+     * @returns {Promise<Object>}
+     * @throws {Error} "No title". If the 'title' parameter is not specified
      */
-    async insert(title = '', privacyStatus = 'private') {
+    async insert(title = '', privacyStatus = 'private', description = '') {
         if (title === '')  {
             throw new Error("No title");
         }
@@ -41,7 +58,8 @@ class YTubePl extends YouTubeAPI {
             part: "snippet,status",
             resource: {
                 snippet: {
-                    title
+                    title,
+                    description
                 },
                 status: {
                     privacyStatus
@@ -55,7 +73,8 @@ class YTubePl extends YouTubeAPI {
     /**
      * 
      * @param {string} id Playlist id
-     * @returns {Object}
+     * @returns {Promise<Object>}
+     * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
         if (id === '') {
@@ -74,7 +93,8 @@ class YTubePlItems extends YouTubeAPI {
     /**
      * 
      * @param {string} playlistId 
-     * @returns {Object}
+     * @returns {Promise<Array>}
+     * @throws {Error} "You must specify an 'playlistId' parametr". If the 'playlistId' parameter is not specified.
      */
     async list(playlistId = '') {
         if (playlistId === '') {
@@ -82,19 +102,33 @@ class YTubePlItems extends YouTubeAPI {
         }
 
         const options = {
-            part: "snippet,contentDetails,status",
-            maxResults: 50,
-            playlistId
-        };
+                part: "snippet,contentDetails",
+                maxResults: 10,
+                playlistId
+            },
+            dataPages = []
+        ;
 
-        return await this.exec('playlistItems', 'list', options);
+        while (true) {
+            const data = await this.exec('playlistItems', 'list', options);
+            dataPages.push(data);
+
+            if ( !Object.hasOwn(data, 'nextPageToken') ) {
+                break;
+            }
+
+            options.pageToken = data.nextPageToken;
+        }
+
+        return dataPages;
     }
 
     /**
      * 
      * @param {string} playlistId 
      * @param {string} videoId 
-     * @returns {Object}
+     * @returns {Promise<Object>}
+     * @throws {Error} "You must specify an 'playlistId' and 'videoId' parametrs". If the 'playlistId' parameter is not specified.
      */
     async insert(playlistId = '', videoId = '') {
         if (playlistId === '' || videoId === '') {
@@ -102,7 +136,7 @@ class YTubePlItems extends YouTubeAPI {
         }
 
         const options = {
-            part: "snippet",
+            part: "snippet,id",
             resource: {
                 snippet: {
                     playlistId,
@@ -121,16 +155,16 @@ class YTubePlItems extends YouTubeAPI {
      * 
      * @param {string} id The id parameter specifies the YouTube playlist item ID for the playlist item that is being deleted. 
      * In a playlistItem resource, the id property specifies the playlist item's ID.
-     * @returns {Object}
+     * @returns {Promise<Object>}
+     * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
         if (id === '') {
-            throw new Error("You must specify an 'Id' parametr");
+            throw new Error("You must specify an 'id' parametr");
         }
         const options = { id };
         return await this.exec('playlistItems', 'delete', options);
     }
-
 }
 
 class YTubeSubscr extends YouTubeAPI {
@@ -143,14 +177,17 @@ class YTubeSubscr extends YouTubeAPI {
      * @param {boolean} mine This parameter can only be used in a properly authorized request. 
      * Set this parameter's value to true to retrieve a feed of the authenticated user's subscriptions.
      * @param {string} channelId 
-     * @returns {Object}
+     * @returns {Promise<Array>}
      */
     async list(mine = true, channelId) {
         
-        const options = {
-            part: "snippet,contentDetails",
-            maxResults: 50
-        };
+        const 
+            options = {
+                part: "snippet,contentDetails",
+                maxResults: 50
+            },
+            dataPages = []
+        ;
 
         if (arguments.length > 1) {
             options.channelId = channelId;
@@ -158,14 +195,26 @@ class YTubeSubscr extends YouTubeAPI {
             options.mine = mine
         }
 
-        return this.exec('subscriptions', 'list', options);
+        while (true) {
+            const data = await this.exec('subscriptions', 'list', options);
+            dataPages.push(data);
+
+            if ( !Object.hasOwn(data, 'nextPageToken') ) {
+                break;
+            }
+
+            options.pageToken = data.nextPageToken;
+        }
+
+        return dataPages;
     }
 
     /**
      * 
      * @param {string} channelId The ID that YouTube uses to uniquely identify the subscriber's channel. 
      * The resource_id object identifies the channel that the user subscribed to.     
-     * @returns {object}
+     * @returns {Promise<Object>}
+     * @throws {Error} "You must specify an 'channelId' parametr". If the 'channelId' parameter is not specified.
      */
     async insert(channelId = '') {
         if (channelId === '') {
@@ -191,11 +240,12 @@ class YTubeSubscr extends YouTubeAPI {
      * 
      * @param {string} id The id parameter specifies the YouTube subscription ID for the resource that is being deleted. 
      * In a subscription resource, the id property specifies the YouTube subscription ID.
-     * @returns {object}
+     * @returns {Promise<Object>}
+     * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
         if (id === '') {
-            throw new Error("You must specify an 'Id' parametr");
+            throw new Error("You must specify an 'id' parametr");
         }
 
         const options = { id };
@@ -205,23 +255,44 @@ class YTubeSubscr extends YouTubeAPI {
 }
 
 class YTubeSections extends YouTubeAPI {
-    constructor(params) {
+    constructor(params) {        
         super(params);
+        //REMOVE IT: when the methods will be implemented
+        console.warn('insert() and delete() methods not implemented!');
     }
-
+    /**
+     * 
+     * @param {boolean} [mine]
+     * @param {string} [channelId]
+     * @returns {Promise<Array>}
+     */
     async list(mine = true, channelId) {
 
-        const options = {
-            part: "snippet,contentDetails"
-        };
+        const 
+            options = {
+                part: "snippet,contentDetails"
+            },
+            dataPages = []
+        ;
 
         if (arguments.length > 1) {
             options.channelId = channelId;
         } else {
             options.mine = mine
         }
+
+        while (true) {
+            const data = await this.exec('channelSections', 'list', options);
+            dataPages.push(data);
+
+            if ( !Object.hasOwn(data, 'nextPageToken') ) {
+                break;
+            }
+
+            options.pageToken = data.nextPageToken;
+        }
         
-        return this.exec('channelSections', 'list', options);
+        return dataPages;
     }
 
     //IMPLEMENT
@@ -241,6 +312,9 @@ class YTubeSections extends YouTubeAPI {
     }
 }
 
+
+//const pli = new YTubePlItems(options.ytAPI);
+//console.log(await pli.list('PLnIgY94VK25_ZiHbgBc0n5zZNEF2AwEkJ'));
 export {
     YTubePl,
     YTubePlItems,

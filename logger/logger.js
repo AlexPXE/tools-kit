@@ -59,10 +59,7 @@ loggerBuilder
         styles: {
             sourceSt: bold.bgGray.white,
             msgSt: chalk.white
-        },
-        strings: {
-            startStr: 'help!'
-        }
+        }        
     }).build()
 ;
 

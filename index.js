@@ -11,8 +11,7 @@ export {
     YTubePl,
     YTubePlItems,
     YTubeSubscr,
-    YTubeSections,
-    YouTubeAPI
+    YTubeSections,    
 } from './gapi/yt.js';
 export {
 	YouTubeAPI

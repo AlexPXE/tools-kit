@@ -43,11 +43,11 @@ class LoggerBuilder {
         styles: {
             sourceSt = (str) => str,
             msgSt = (str) => str,        
-        },
+        } = {},
         strings: {
             startStr = '',
             endStr = '',
-        }
+        } = {}
     }) {        
         if ( Object.hasOwn(this.prototype, name) ) {
             throw new Error(`Property name '${name}' reserved`);

@@ -17,24 +17,28 @@ class Peformer {
     constructor() {
 
         const showHelpList = () => {
+            let h = '';
+
             for ( let [cName, { help }] of this.commands.entries() ) {
-                msg.help(cName, help);
+                h += `\n\t\t${cName}\n\t\t\t${help}`;
             }
+
+            msg.help('Availible commands:\n' + h);
         };
 
         this.set(
-            "help", 
+            "help",
             "help [commandName]",
             ([commandName]) => {
                 if ( !this.has(commandName) ) {
                     if (commandName !== undefined) {
-                        msg.warn(`Command named ${commandName} not found.\nAvailible commands:`);
+                        msg.warn(`Command not found.`);
                     }
                     
                     return showHelpList();
                 }
 
-                return msg.help( commandName, this.get(commandName).help );
+                return msg.help( `${commandName}\n${this.get(commandName).help}` );
             }
         );
     }
@@ -47,7 +51,7 @@ class Peformer {
      */
     async execute(command, options = []) {
         if ( !this.has(command) ) {
-           return this.execute('help');
+           return this.execute('help', [command]);
         }
 
         return await this.get(command).command(options);

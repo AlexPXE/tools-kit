@@ -1,10 +1,12 @@
 "use strict";
 import * as fs from 'fs/promises';
 import * as readline from 'node:readline/promises';
-import { google } from 'googleapis';
+import {
+	google
+} from 'googleapis';
 
 class YouTubeAPI {
-	
+
 	clientSecret;
 	oauth2Client;
 	scopes = [];
@@ -13,7 +15,7 @@ class YouTubeAPI {
 	clientSecretDir = '';
 	clientSecretFN = '';
 	service = google.youtube('v3');
-	
+
 	/**
 	 * 
 	 * @param {Object} [params] 
@@ -28,8 +30,8 @@ class YouTubeAPI {
 		clientSecretDir = '',
 		clientSecretFN = 'client_secret.json'
 	} = {}) {
-		
-		this.scopes = scopes;		
+
+		this.scopes = scopes;
 		this.tokenDir = tokenDir;
 		this.tokenFN = tokenFN;
 		this.clientSecretDir = clientSecretDir;
@@ -40,19 +42,21 @@ class YouTubeAPI {
 		try {
 			this.clientSecret = JSON.parse(
 				await fs.readFile(this.clientSecretDir + this.clientSecretFN, 'utf-8')
-			).web;			
-			
-		} catch(e) {
-			console.log('Error loading client secret file: ' + e);			
+			).web;
+
+		} catch (e) {
+			console.log('Error loading client secret file: ' + e);
 		}
 
 		return this;
 	}
-	
+
 	async setOAuth2() {
-		if ( this.clientSecret === undefined) {
-			const {clientSecret} = await this.setClientSecrets();			
-			
+		if (this.clientSecret === undefined) {
+			const {
+				clientSecret
+			} = await this.setClientSecrets();
+
 			if (clientSecret === undefined) {
 				throw new Error("'this.clientSecret' is missing");
 			}
@@ -70,18 +74,18 @@ class YouTubeAPI {
 		try {
 			this.oauth2Client.credentials = JSON.parse(
 				await fs.readFile(this.tokenDir + this.tokenFN, 'utf-8')
-			);	
+			);
 
-		} catch(e) {
+		} catch (e) {
 			return await this.getNewToken();
 		}
 
 		return this;
 	}
 
-	async getNewToken() {		
+	async getNewToken() {
 
-		if ( this.oauth2Client === undefined) {
+		if (this.oauth2Client === undefined) {
 			return await this.setOAuth2();
 		}
 
@@ -101,10 +105,14 @@ class YouTubeAPI {
 		rl.close();
 
 		try {
-			const { tokens } = await this.oauth2Client.getToken(code);
-			this.oauth2Client.credentials = tokens;
-			await fs.writeFile( this.tokenDir + this.tokenFN, JSON.stringify(tokens, null, 4) );
-		} catch(e) {
+			const {
+				tokens
+			} = await this.oauth2Client.getToken(code);
+
+			this.oauth2Client.credentials = tokens;			
+			await fs.writeFile(this.tokenDir + this.tokenFN, JSON.stringify(tokens, null, 4));
+
+		} catch (e) {
 			console.log('Error while trying to retrieve access token', e);
 			return;
 		}
@@ -130,16 +138,17 @@ class YouTubeAPI {
 			await this.getNewToken();
 		}
 
-		options.auth = this.oauth2Client;
-
 		try {
-			const { data } = await this.service[reference][method](options);
+			options.auth = 	this.oauth2Client;
+			const {
+				data
+			} = await this.service[reference][method](options);
 			return data;
 
 		} catch (e) {
 			if (e.message === 'No refresh token is set.') {
 				await this.refreshToken();
-				return await this.exec(reference, method, options);				
+				return await this.exec(reference, method, options);
 			}
 
 			throw new Error('The API returned an error: ' + e);
