@@ -13,6 +13,5 @@ export {
     YTubeSubscr,
     YTubeSections,    
 } from './gapi/yt.js';
-export {
-	YouTubeAPI
-} from './gapi/ytapi.js';
+export { YouTubeAPI } from './gapi/ytapi.js';
+export { JsonDB } from './jsondb/jsondb.js';
