@@ -1,7 +1,7 @@
 'use strict';
 
 import chalk from 'chalk';
-import {LoggerBuilder} from './loggerbuilder.js';
+import {LoggerBuilder} from '../index.js';
 
 const
     bold         =  chalk.bold,        
@@ -14,55 +14,41 @@ const loggerBuilder = new LoggerBuilder();
 loggerBuilder
     .setStyleFn({
         name: 'info',
-        styles: {
-            sourceSt: chalk.hex("#09ff00").bgWhite,
-            msgSt: chalk.hex("#09ff00")
-        }
+        msgType: 'info:',
+        msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+        sourceStyle: chalk.hex("#09ff11").bgWhite,
+        msgStyle: chalk.hex("#09ff00"),
+        
     }).setStyleFn({
         name: 'success',
-        styles: {
-            sourceSt: bold.bgHex("#15ff00").hex("#000d33"),
-            msgSt: chalk.hex("#02fafa")
-        },
-        strings: {
-            endStr: 'successfully'
-        }
+        message: 'SUCCESS.',
+        msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+        sourceStyle: chalk.hex("#09ff11").bgWhite,
+        msgStyle: chalk.hex("#02fafa")
+
     }).setStyleFn({
         name: 'err',
-        styles: {
-            sourceSt: bold.bgRed.blueBright,
-            msgSt: bold.red
-        },
-        strings: {
-            startStr: 'ERROR!'
-        }
+        msgType: 'ERROR!',
+        msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+        sourceStyle: chalk.hex("#09ff11").bgWhite,
+        msgStyle: bold.red
+
     }).setStyleFn({
         name: 'fail',
-        styles: {
-            sourceSt: bold.hex("#ff66cc"),
-            msgSt: bold.hex("#ff078f")
-        },
-        strings: {
-            startStr: 'FAIL!'
-        }
+        msgType: 'FAIL!',
+        msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+        sourceStyle: chalk.hex("#09ff11").bgWhite,
+        msgStyle: bold.hex("#ff078f")
+
     }).setStyleFn({
         name: 'warn',
-        styles: {
-            sourceSt: bold.bgYellowBright.redBright,
-            msgSt: bold.yellow
-        },
-        strings: {
-            startStr: 'WARNING!'
-        }
-    }).setStyleFn({
-        name: 'help',
-        styles: {
-            sourceSt: bold.bgGray.white,
-            msgSt: chalk.white
-        }        
+        msgType: 'WARNING!',
+        msgTypeStyle: chalk.red.bgYellow,
+        sourceStyle: chalk.hex("#09ff11").bgWhite,
+        msgStyle: bold.yellow        
+
     }).build()
 ;
-
 
 const logger = loggerBuilder.create();
 export { loggerBuilder }
