@@ -1,142 +1,6 @@
 "use strict";
 
 import { saySync } from './saySync.js';
-
-class VoiceLoggerBuilder {
-    
-    stylesFns = new Map();    
-    
-    prototype = {
-        voice: 'Microsoft Zira Desktop',
-        voiceSpeed: 0.80,
-        sayEnable: true,
-        log: console.log,        
-        say: saySync,
-        mute() {            
-            this.sayEnable = false;
-            return this;
-        },
-        unmute() {
-            this.sayEnable = true;
-            return this;
-        },
-        msg(msg) {
-            return this.say.speak(msg, this.voice, this.voiceSpeed);
-        }
-    };
-
-    instance = {};
-
-    /**
-     * 
-     * @param {Object} params 
-     * @param {Object} params.styles
-     * @param {function} params.styles.sourceSt
-     * @param {function} params.styles.msgSt
-     * @param {object} params.strings
-     * @param {string} params.strings.startStr
-     * @param {string} params.strings.endStr
-     * @returns {this}
-     */
-    setStyleFn({
-        name = 'log',
-        styles: {
-            sourceSt = (str) => str,
-            msgSt = (str) => str,        
-        } = {},
-        strings: {
-            startStr = '',
-            endStr = '',
-        } = {}
-    }) {        
-        if ( Object.hasOwn(this.prototype, name) ) {
-            throw new Error(`Property name '${name}' reserved`);
-        }
-
-        this.stylesFns.set(
-            name,
-            function(...msgs) {
-
-                const formattedMsg = msgs.map((str) => {
-                    return `\t${startStr && startStr + ' '}${str}${endStr && '\t' + endStr}`
-                }).join('\n');
-                
-                this.log( `${ sourceSt(this.source) }\n ${ msgSt(formattedMsg) }` );
-
-                if (this.sayEnable) {
-                    this.msg(`${this.source}. ${formattedMsg}`);
-                }
-
-                return this;
-            }
-        );
-
-        return this;
-    }
-
-    /**
-     * 
-     * @param {string} voice Voice name
-     * @returns {this}
-     */
-    setVoice(voice) {
-        this.prototype.voice = voice;
-        return this;
-    }
-
-    /**
-     * 
-     * @param {number} speed 0.1 - 10%, 1 - 100%
-     * @returns {this}
-     */
-    setVoiceSpeed(speed) {
-        this.prototype.voiceSpeed = speed; 
-        return this;
-    }
-
-    /**
-     * Build prototype
-     * 
-     * @returns {this}
-     */
-    build() {
-        const resultObj = {};
-
-        for ( let [propName, fn] of this.stylesFns.entries() ) {
-            resultObj[propName] = fn;
-        }
-
-        this.instance = Object.assign(
-            {},            
-            resultObj,
-            this.prototype
-        );
-
-        return this;
-    }
-
-    /**
-     * Create instanse
-     * 
-     * @param {string} source Message source
-     * @returns {object} Instance
-     */
-    create(source = 'log') {
-        return Object.assign(
-            {},
-            {   
-                source,
-            },
-            this.instance
-        );
-    }
-
-    reset() {
-        this.instance = {};
-        return this;
-    }
-}
-
 class LoggerBuilder {
     
     stylesFns = new Map();
@@ -175,11 +39,10 @@ class LoggerBuilder {
              * @returns {Object} this loger instance
              */
             function() {
-                log(`${msgTypeStyle(msgType + '')}${sourceStyle(this.source)}} ${msgStyle(...arguments)}`);
+                log(`${msgTypeStyle(msgType + ' ')}${sourceStyle(this.source)} ${msgStyle(...arguments)}`);
                 return this;
             }
         );
-
         return this;
     }    
 
@@ -200,7 +63,7 @@ class LoggerBuilder {
      * @returns {Object}
      */
     create(sourceName = 'log') {
-        return Object.create({}, this.prototype, {source: sourceName});
+        return Object.assign({}, this.prototype, {source: sourceName});
     }
 
     /**
@@ -214,22 +77,15 @@ class LoggerBuilder {
     }
 }
 
-
-class Foo extends LoggerBuilder {    
+class VoiceLoggerBuilder extends LoggerBuilder {
     
     tts = {
         voice: 'Microsoft Zira Desktop',
         voiceSpeed: 0.80,        
-        ttsFlag: false,
-        voiceEngine: saySync,        
-        get say() {
-            this.ttsFlag = true;
-            return this;
-        }
+        voiceEngine: saySync        
     };
 
-    prototype = {
-    };
+    prototype = {};
 
     /**
      * Set style 
@@ -250,9 +106,9 @@ class Foo extends LoggerBuilder {
         sourceStyle = (source) => source,
         msgStyle = (msg) => msg
 
-    } = {}) {
-        if ( Object.hasOwn(this.voiceEngine, name) || name === 'source') {
-            throw new Error(`Sorry, property name: ${name} is already reserved. List of all reserved properties:\n ${[Object.keys(this.voiceEngine)]}`);
+    } = {}) {        
+        if ( Object.hasOwn(this.tts, name) || name === 'source') {
+            throw new Error(`Sorry, property name: ${name} is already reserved. List of all reserved properties:\n ${[Object.keys(this.tts)]}`);
         }
         const log = console.log;
 
@@ -264,10 +120,10 @@ class Foo extends LoggerBuilder {
              * @returns {Object} this logger instance
              */                     
             function() {
-                log(`${msgTypeStyle(msgType + '')}${sourceStyle(this.source)}} ${msgStyle(...arguments)}`);
+                log(`${msgTypeStyle(msgType + ' ')}${sourceStyle(this.source)} ${msgStyle(...arguments)}`);
                 
                 if (this.ttsFlag === true) {
-                    this.voiceEngine.speak(`${msgType} ${this.source} ${[...arguments].join(' ')}`, this.voice, this.voiceSpeed);
+                    this.voiceEngine.speak(`${msgType}. Message source. ${this.source}. Message. ${[...arguments].join(' ')}`, this.voice, this.voiceSpeed);
                     this.ttsFlag = false;
                 }
                 return this;
@@ -282,7 +138,18 @@ class Foo extends LoggerBuilder {
      * @returns {Object} Logger instance with specified parameters
      */
     create(sourceName = 'log') {
-        return Object.create({}, {source: sourceName}, this.prototype, this.voiceEngine);
+        return Object.assign(
+            {
+                ttsFlag: false,
+                get say(){
+                    this.ttsFlag = true;
+                    return this;
+                }
+            }, 
+            {source: sourceName},
+            this.prototype, 
+            this.tts
+        );
     }    
 }
 

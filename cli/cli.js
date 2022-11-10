@@ -1,22 +1,36 @@
 import * as readline from 'node:readline/promises';
-import { Peformer } from "../index.js";
+import { 
+    Runner,
+    VoiceRunner,
+    RunnerFactory
+} from "../index.js";
 
 class Cli {
-
     rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
-    });
-    peformer;
+    });    
     prompt;
+    runner;
 
-    constructor(peformerLike, prompt = 'PROMPT>') {
-        this.peformer = peformerLike;
+    /**
+     * 
+     * @param {object} runner
+     * @param {function} runner.run
+     * @param {string} prompt 
+     */
+    constructor(runner, prompt = 'PROMPT>') {        
         this.prompt = prompt + ' ';
+        this.runner = runner;
     }
 
+    /**
+     * Start cli.
+     * 
+     * @returns {Prmise<this>}
+     */
     async start() {
-        const {rl, prompt, peformer} = this;
+        const {rl, prompt, runner} = this;
 
         while(true) {
             const string = await rl.question(prompt);
@@ -25,24 +39,120 @@ class Cli {
             }
 
             const [command, ...opt] = string.split(' ');
-            await peformer.execute(command, opt);
+            await runner.run(command, opt);
         }
 
         return this;
     }    
 }
+class CliRunner extends Runner {
+
+    cli;
+    /**
+     * 
+     * @param {object} logger
+     * @param {function} logger.warn
+     * @param {function} logger.info
+     * @param {class} Cli
+     * @param {Object} Cli.prototype
+     * @param {function} Cli.prototype.start
+     * @param {string} [prompt] Default: PROMPT>
+    */
+    constructor(logger, Cli, prompt) {
+        super(logger);
+        this.cli = new Cli(this, prompt);
+    }
+
+    /**
+     * 
+     * @returns {Promise<this>}
+     */
+    async start() {
+        const { cli } = this;
+        await cli.start();
+
+        return this;
+    }
+}
+
+class VoiceCliRunner extends VoiceRunner {
+    cli;
+
+    /**
+     * 
+     * @param {object} voicelogger
+     * @param {object} voicelogger.say
+     * @param {function} voicelogger.say.warn
+     * @param {function} voicelogger.say.info
+     * @param {class} Cli
+     * @param {Object} Cli.prototype
+     * @param {function} Cli.prototype.start
+     * @param {string} [prompt] Default: PROMPT>
+    */
+    constructor(voicelogger, Cli, prompt) {
+        super(voicelogger);
+        this.cli = new Cli(this, prompt);
+    }
+
+    /**
+     * 
+     * @returns {Promise<this>}
+     */
+    async start() {
+        const { cli } = this;
+        await cli.start();
+        return this;
+    }
+}
+
+class CliRunnerFactory extends RunnerFactory { 
+    Cli = Cli;
+    
+    /**
+     * 
+     * @param {string} sorceName 
+     * @param {string} prompt 
+     * @returns {CliRunner}
+     */
+    runner(sorceName = 'CLI', prompt) {        
+        return new CliRunner( this.logger.create(sorceName), this.Cli, prompt );
+    }
+
+    /**
+     * 
+     * @param {string} sorceName
+     * @param {string} prompt 
+     * @returns {VoiceCliRunner}
+     */
+    voiceRunner(sorceName = 'CLI', prompt) {
+        return new VoiceCliRunner( this.voiceLogger.create(sorceName), this.Cli, prompt )
+    }
+}
+
+const cliRunnerFactory = new CliRunnerFactory();
+
+
 
 async function foo() {
-    const pef = new Peformer().set(
-        'hello',
-        'Just hello',
-        (command) => console.log("Oooooh good command")
-    )
-
-    const cli = new Cli(pef);
-    await cli.start();
+    const cli = cliRunnerFactory.runner();
+    cli
+        .set(
+            "hello",
+            "Super command",
+            (options) => {
+                console.log(...options);
+            }
+        )
+    ;
+    await cli.start()
 }
 
 foo();
 
-export {Cli}
+export {
+    Cli,
+    CliRunner,
+    VoiceCliRunner,
+    CliRunnerFactory,
+    cliRunnerFactory
+}
