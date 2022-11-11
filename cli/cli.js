@@ -80,17 +80,17 @@ class VoiceCliRunner extends VoiceRunner {
 
     /**
      * 
-     * @param {object} voicelogger
-     * @param {object} voicelogger.say
-     * @param {function} voicelogger.say.warn
-     * @param {function} voicelogger.say.info
+     * @param {object} voiceLogger
+     * @param {object} voiceLogger.say
+     * @param {function} voiceLogger.say.warn
+     * @param {function} voiceLogger.say.info
      * @param {class} Cli
      * @param {Object} Cli.prototype
      * @param {function} Cli.prototype.start
      * @param {string} [prompt] Default: PROMPT>
     */
-    constructor(voicelogger, Cli, prompt) {
-        super(voicelogger);
+    constructor(voiceLogger, Cli, prompt) {
+        super(voiceLogger);
         this.cli = new Cli(this, prompt);
     }
 
@@ -130,24 +130,6 @@ class CliRunnerFactory extends RunnerFactory {
 }
 
 const cliRunnerFactory = new CliRunnerFactory();
-
-
-
-async function foo() {
-    const cli = cliRunnerFactory.runner();
-    cli
-        .set(
-            "hello",
-            "Super command",
-            (options) => {
-                console.log(...options);
-            }
-        )
-    ;
-    await cli.start()
-}
-
-foo();
 
 export {
     Cli,

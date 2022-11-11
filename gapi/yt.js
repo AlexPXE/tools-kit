@@ -319,6 +319,5 @@ export {
     YTubePl,
     YTubePlItems,
     YTubeSubscr,
-    YTubeSections,
-    YouTubeAPI
+    YTubeSections,    
 }
