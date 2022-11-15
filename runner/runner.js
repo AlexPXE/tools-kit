@@ -30,7 +30,10 @@ class Runner {
             for ( let [cName, { help }] of this.commands.entries() ) {
                 h += `\n\t\t${cName}\n\t\t\t${help}`;
             }
-            this.msg.info('Availible commands:\n' + h);
+            this.logger({
+                typeMsg: "info",
+                msg: "'Availible commands:\n' + h"
+            });            
         };
 
         this.set(
@@ -39,11 +42,19 @@ class Runner {
             ([commandName]) => {
                 if ( !this.has(commandName) ) {
                     if (commandName !== undefined) {
-                        this.msg.warn(`Command not found.`);
-                    }                    
+                        this.logger({
+                            typeMsg: "warn",
+                            msg: `Command not found.`
+                        });
+                        
+                    }               
                     return showHelpList();
                 }
-                return this.msg.info( `${commandName}\n${this.get(commandName).help}` );
+
+                this.logger({
+                    typeMsg: "info",
+                    msg: `${commandName}\n${this.get(commandName).help}`
+                });                
             }
         );
     }
@@ -102,6 +113,7 @@ class Runner {
     }    
 }
 
+//TEST IT
 class VoiceRunner extends Runner {
     /**
      * 
@@ -112,30 +124,6 @@ class VoiceRunner extends Runner {
      */
     constructor(voiceLogger) {
         super(voiceLogger);
-
-        const showHelpList = () => {
-            let h = '';
-
-            for ( let [cName, { help }] of this.commands.entries() ) {
-                h += `\n\t\t${cName}\n\t\t\t${help}`;
-            }
-
-            this.msg.say.info('Availible commands:\n' + h);
-        };
-
-        this.set(
-            "help",
-            "help [commandName]",
-            ([commandName]) => {
-                if ( !this.has(commandName) ) {
-                    if (commandName !== undefined) {
-                        this.msg.say.warn(`Command not found.`);
-                    }                    
-                    return showHelpList();
-                }
-                return this.msg.say.info( `${commandName}\n${this.get(commandName).help}` );
-            }
-        );
     }
 
     /**
