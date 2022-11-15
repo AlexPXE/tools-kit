@@ -1,8 +1,13 @@
-import { YouTubeAPI } from "./ytapi.js";
-class YTubePl extends YouTubeAPI {
-    
-    constructor(params) {
-        super(params)
+"use strict";
+class YTubePl {
+    ytApi;
+    /**
+     * 
+     * @param {Object} ytApi
+     * @param {function} ytApi.exec
+     */
+    constructor(ytApi) {
+        this.ytApi = ytApi;
     }
 
     /**
@@ -12,7 +17,7 @@ class YTubePl extends YouTubeAPI {
      * @returns {Promise<Array>}
      */
     async list(mine = true, channelId) {
-
+        const { ytApi } = this;
         const 
             options = {
                 part: "snippet,status",
@@ -28,7 +33,7 @@ class YTubePl extends YouTubeAPI {
         }
         
         while (true) {
-            const data = await this.exec('playlists', 'list', options);
+            const data = await ytApi.exec('playlists', 'list', options);
             dataPages.push(data);
 
             if ( !Object.hasOwn(data, 'nextPageToken') ) {
@@ -49,7 +54,9 @@ class YTubePl extends YouTubeAPI {
      * @returns {Promise<Object>}
      * @throws {Error} "No title". If the 'title' parameter is not specified
      */
-    async insert(title = '', privacyStatus = 'private', description = '') {
+    async insert(title = '', privacyStatus = 'private', description = '') {        
+        const { ytApi } = this;
+
         if (title === '')  {
             throw new Error("No title");
         }
@@ -67,7 +74,7 @@ class YTubePl extends YouTubeAPI {
             }
         };
 
-        return await this.exec('playlists', 'insert', options);
+        return await ytApi.exec('playlists', 'insert', options);
     }
 
     /**
@@ -77,17 +84,25 @@ class YTubePl extends YouTubeAPI {
      * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
+        const { ytApi } = this;
+
         if (id === '') {
             throw new Error("You must specify an 'id' parametr");
         }
         const options = { id };
-        return await this.exec('playlists', 'delete', options);
+        return await ytApi.exec('playlists', 'delete', options);
     }
 }
 
-class YTubePlItems extends YouTubeAPI {
-    constructor(params) {
-        super(params)
+class YTubePlItems {
+    ytApi;
+
+    /**
+     * 
+     * @param {YouTubeAPI} ytApi
+     */
+    constructor(ytApi) {
+        this.ytApi = ytApi;
     }
 
     /**
@@ -97,6 +112,8 @@ class YTubePlItems extends YouTubeAPI {
      * @throws {Error} "You must specify an 'playlistId' parametr". If the 'playlistId' parameter is not specified.
      */
     async list(playlistId = '') {
+        const { ytApi } = this;
+
         if (playlistId === '') {
             throw new Error("You must specify an 'playlistId' parametr");
         }
@@ -110,7 +127,7 @@ class YTubePlItems extends YouTubeAPI {
         ;
 
         while (true) {
-            const data = await this.exec('playlistItems', 'list', options);
+            const data = await ytApi.exec('playlistItems', 'list', options);
             dataPages.push(data);
 
             if ( !Object.hasOwn(data, 'nextPageToken') ) {
@@ -131,6 +148,8 @@ class YTubePlItems extends YouTubeAPI {
      * @throws {Error} "You must specify an 'playlistId' and 'videoId' parametrs". If the 'playlistId' parameter is not specified.
      */
     async insert(playlistId = '', videoId = '') {
+        const { ytApi } = this;
+
         if (playlistId === '' || videoId === '') {
             throw new Error("You must specify an 'playlistId' and 'videoId' parametrs");
         }
@@ -148,7 +167,7 @@ class YTubePlItems extends YouTubeAPI {
             }
         }
 
-        return await this.exec('playlistItems', 'insert', options);
+        return await ytApi.exec('playlistItems', 'insert', options);
     }
 
     /**
@@ -159,17 +178,26 @@ class YTubePlItems extends YouTubeAPI {
      * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
+        const { ytApi } = this;
+
         if (id === '') {
             throw new Error("You must specify an 'id' parametr");
         }
         const options = { id };
-        return await this.exec('playlistItems', 'delete', options);
+        return await ytApi.exec('playlistItems', 'delete', options);
     }
 }
 
-class YTubeSubscr extends YouTubeAPI {
-    constructor(params) {
-        super(params);
+class YTubeSubscr {
+    
+    ytApi;
+
+    /**
+     * 
+     * @param {YouTubeAPI} ytApi
+     */
+    constructor(ytApi) {
+        this.ytApi = ytApi;
     }
 
     /**
@@ -180,7 +208,7 @@ class YTubeSubscr extends YouTubeAPI {
      * @returns {Promise<Array>}
      */
     async list(mine = true, channelId) {
-        
+        const { ytApi } = this;
         const 
             options = {
                 part: "snippet,contentDetails",
@@ -196,7 +224,7 @@ class YTubeSubscr extends YouTubeAPI {
         }
 
         while (true) {
-            const data = await this.exec('subscriptions', 'list', options);
+            const data = await ytApi.exec('subscriptions', 'list', options);
             dataPages.push(data);
 
             if ( !Object.hasOwn(data, 'nextPageToken') ) {
@@ -217,6 +245,8 @@ class YTubeSubscr extends YouTubeAPI {
      * @throws {Error} "You must specify an 'channelId' parametr". If the 'channelId' parameter is not specified.
      */
     async insert(channelId = '') {
+        const { ytApi } = this;
+
         if (channelId === '') {
             throw new Error("You must specify an 'channelId' parametr");
         }
@@ -233,7 +263,7 @@ class YTubeSubscr extends YouTubeAPI {
             }
         };
 
-        return this.exec('subscriptions', 'insert', options);
+        return ytApi.exec('subscriptions', 'insert', options);
     }
 
     /**
@@ -244,22 +274,32 @@ class YTubeSubscr extends YouTubeAPI {
      * @throws {Error} "You must specify an 'id' parametr". If the 'id' parameter is not specified.
      */
     async delete(id = '') {
+        const { ytApi } = this;
+
         if (id === '') {
             throw new Error("You must specify an 'id' parametr");
         }
 
         const options = { id };
 
-        return this.exec('subscriptions', 'delete', options);
+        return ytApi.exec('subscriptions', 'delete', options);
     }
 }
 
-class YTubeSections extends YouTubeAPI {
-    constructor(params) {        
-        super(params);
+class YTubeSections {
+    
+    ytApi;
+
+    /**
+     * 
+     * @param {YouTubeAPI} ytApi
+     */
+    constructor(ytApi) {
         //REMOVE IT: when the methods will be implemented
         console.warn('insert() and delete() methods not implemented!');
+        this.ytApi = ytApi;
     }
+    
     /**
      * 
      * @param {boolean} [mine]
@@ -267,6 +307,7 @@ class YTubeSections extends YouTubeAPI {
      * @returns {Promise<Array>}
      */
     async list(mine = true, channelId) {
+        const { ytApi } = this;
 
         const 
             options = {
@@ -282,7 +323,7 @@ class YTubeSections extends YouTubeAPI {
         }
 
         while (true) {
-            const data = await this.exec('channelSections', 'list', options);
+            const data = await ytApi.exec('channelSections', 'list', options);
             dataPages.push(data);
 
             if ( !Object.hasOwn(data, 'nextPageToken') ) {
@@ -311,7 +352,6 @@ class YTubeSections extends YouTubeAPI {
         throw new Error("Not implemented!");
     }
 }
-
 
 //const pli = new YTubePlItems(options.ytAPI);
 //console.log(await pli.list('PLnIgY94VK25_ZiHbgBc0n5zZNEF2AwEkJ'));

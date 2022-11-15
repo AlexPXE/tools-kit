@@ -47,6 +47,23 @@ class Runner {
             }
         );
     }
+
+    /**
+     * 
+     * @param {Object} params
+     * @param {Object} params.typeMsg
+     * @param {Object} params.msg
+     * @returns {this}
+     */
+    logger({typeMsg, msg}) {
+        if ( Object.hasOwn(this.msg, typeMsg) ) {
+            this.msg[typeMsg](msg);
+        } else {
+            this.msg.warn(`Type of msg '${typeMsg}' does not exist.`);
+            this.msg.info(msg);
+        }
+        return this;
+    }
     
     /**
      * 
@@ -58,7 +75,7 @@ class Runner {
         if ( !this.has(command) ) {
            return this.run('help', [command]);
         }
-        return await this.get(command).command(options);
+        return await ( this.get(command) ).command(options);
     }
 
     /**
@@ -88,13 +105,13 @@ class Runner {
 class VoiceRunner extends Runner {
     /**
      * 
-     * @param {Object} logger
+     * @param {Object} voiceLogger
      * @param {Object} logger.say
      * @param {function} logger.say.warn
      * @param {function} logger.say.info
      */
-    constructor(logger) {
-        super(logger);
+    constructor(voiceLogger) {
+        super(voiceLogger);
 
         const showHelpList = () => {
             let h = '';
@@ -119,6 +136,23 @@ class VoiceRunner extends Runner {
                 return this.msg.say.info( `${commandName}\n${this.get(commandName).help}` );
             }
         );
+    }
+
+    /**
+     * 
+     * @param {Object} params
+     * @param {Object} params.typeMsg
+     * @param {Object} params.msg
+     * @returns {this}
+     */
+    voiceLogger({typeMsg, msg}) {
+        if ( Object.hasOwn(this.msg, typeMsg) ) {
+            this.msg[typeMsg](msg);
+        } else {
+            this.msg.say.warn(`Type of msg '${typeMsg}' does not exist.`);
+            this.msg.say.info(msg);
+        }
+        return this;
     }
 }
 class RunnerFactory {

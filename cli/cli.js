@@ -6,11 +6,9 @@ import {
 } from "../index.js";
 
 class Cli {
-    rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });    
+    rl;
     prompt;
+    promptLength;
     runner;
 
     /**
@@ -21,29 +19,61 @@ class Cli {
      */
     constructor(runner, prompt = 'PROMPT>') {        
         this.prompt = prompt + ' ';
+        this.promptLength = this.prompt.length;
         this.runner = runner;
-    }
 
+        this.rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            prompt            
+        });        
+    }
+    
     /**
      * Start cli.
      * 
      * @returns {Prmise<this>}
      */
     async start() {
-        const {rl, prompt, runner} = this;
-
-        while(true) {
-            const string = await rl.question(prompt);
-            if (string === 'exit') {
-                break;
+        const {runner} = this;
+        this.rl.prompt();
+        
+        this.rl.on('line', async (line) => {
+            if (line === 'exit') {
+                this.rl.close();
+                process.exit(0);
             }
-
-            const [command, ...opt] = string.split(' ');
+            
+            const [command, ...opt] = line.split(' ');
             await runner.run(command, opt);
-        }
+
+            this.rl.prompt();
+        });
 
         return this;
-    }    
+    }
+
+    /**
+     * Method pauses the input stream, allowing it to be resumed later if necessary.
+     * 
+     * @returns {this}
+     */
+    pause() {
+        process.stdout.clearLine(0);
+        process.stdout.moveCursor(-this.promptLength, 0);
+        this.rl.pause();
+        return this;        
+    }
+
+    /**
+     * Method resumes the input stream if it has been paused.
+     * 
+     * @returns {this}
+     */
+    resume() {        
+        this.rl.prompt();
+        return this;
+    }
 }
 class CliRunner extends Runner {
 
@@ -73,8 +103,22 @@ class CliRunner extends Runner {
 
         return this;
     }
-}
 
+    /**
+     * 
+     * @param {Object} params
+     * @param {Object} params.typeMsg
+     * @param {Object} params.msg
+     * @returns {this}
+     */
+    logger(params) {        
+        this.cli.pause();
+        super.logger(params);
+        this.cli.resume();
+
+        return this;
+    }
+}
 class VoiceCliRunner extends VoiceRunner {
     cli;
 
@@ -95,12 +139,42 @@ class VoiceCliRunner extends VoiceRunner {
     }
 
     /**
-     * 
+     * Start cli runner
      * @returns {Promise<this>}
      */
     async start() {
         const { cli } = this;
         await cli.start();
+        return this;
+    }
+
+    /**
+     * 
+     * @param {Object} params
+     * @param {Object} params.typeMsg
+     * @param {Object} params.msg
+     * @returns {this}
+     */
+    logger(params) {
+        this.cli.pause();
+        super.logger(params);
+        this.cli.resume();
+
+        return this;
+    }
+
+    /**
+     * 
+     * @param {Object} params
+     * @param {Object} params.typeMsg
+     * @param {Object} params.msg
+     * @returns {this}
+     */
+    voiceLogger(params) {
+        this.cli.pause();
+        super.voiceLogger(params);
+        this.cli.resume();
+
         return this;
     }
 }
@@ -110,8 +184,8 @@ class CliRunnerFactory extends RunnerFactory {
     
     /**
      * 
-     * @param {string} sorceName 
-     * @param {string} prompt 
+     * @param {string} [sorceName]
+     * @param {string} [prompt]
      * @returns {CliRunner}
      */
     runner(sorceName = 'CLI', prompt) {        

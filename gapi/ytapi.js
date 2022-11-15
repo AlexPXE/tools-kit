@@ -22,6 +22,8 @@ class YouTubeAPI {
 	 * @param {Array<string>} [params.scopes] example: `['https://www.googleapis.com/auth/youtube.readonly']`
 	 * @param {string} [params.tokenDir] example: `'C:\\Users\\userName\\.credentials\\'`
 	 * @param {string} [params.tokenFN] example: `'yt.json'`
+	 * @param {string} [params.clientSecretDir]
+	 * @param {string} [params.clientSecretFN] example: 'client_secret.json'
 	 */
 	constructor({
 		scopes = [],

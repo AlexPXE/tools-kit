@@ -5,12 +5,13 @@ import path from 'path';
 
 class JsonDB {
     db = new Map();
-    path = '';    
+    path = '';
 
     /**
      * 
-     * @param  {...string} loadPath 
+     * @param  {string} loadPath 
      * @returns {Promise<this>}
+     * @throws {Error} If reading from disk fails
      */
     async load(...loadPath) {
         let dbPath = '';
@@ -40,7 +41,8 @@ class JsonDB {
     /**
      * 
      * @param  {...string} savePath 
-     * @returns {this}
+     * @returns {Promise<this>}
+     * @throws {Error} If writing to disk fails
      */
     async save(...savePath) {
         let dbPath = '';
@@ -51,13 +53,12 @@ class JsonDB {
             dbPath = path.join(...savePath);
         }
 
-        try {
-            const dataString = JSON.stringify([...this.db], null, 4);
-            fs.writeFile(dbPath, dataString, "utf-8");
+        try {            
+            await fs.writeFile(dbPath, this.toJSON(), "utf-8");
             this.path = dbPath;
 
         } catch(e) {
-            throw new Error("Data has not been loaded:", e);
+            throw new Error("Data has not been saved:", e);
         }
         return this;
     }
@@ -77,8 +78,13 @@ class JsonDB {
      * @param {string|number} key 
      * @returns {*}
      */
-    get(key) {        
-        return this.get(key);
+    get(key) {
+        console.log(key);
+        return this.db.get(key);
+    }
+
+    toJSON() {
+        return JSON.stringify([...this.db], null, 4);
     }
 }
 
