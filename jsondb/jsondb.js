@@ -45,13 +45,7 @@ class JsonDB {
      * @throws {Error} If writing to disk fails
      */
     async save(...savePath) {
-        let dbPath = '';
-
-        if (savePath.length === 0) {
-            dbPath = this.dbPath;
-        } else {
-            dbPath = path.join(...savePath);
-        }
+        let dbPath = savePath.length === 0 ? this.path : path.join(...savePath);
 
         try {            
             await fs.writeFile(dbPath, this.toJSON(), "utf-8");

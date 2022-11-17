@@ -32,7 +32,7 @@ class Runner {
             }
             this.logger({
                 typeMsg: "info",
-                msg: "'Availible commands:\n' + h"
+                msg: 'Availible commands:\n' + h
             });            
         };
 

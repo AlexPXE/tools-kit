@@ -36,9 +36,7 @@ class Cli {
      */
     async start() {
         const {runner} = this;
-        this.rl.prompt();
-        
-        this.rl.on('line', async (line) => {
+        const lineHandler = async (line) => {
             if (line === 'exit') {
                 this.rl.close();
                 process.exit(0);
@@ -47,9 +45,12 @@ class Cli {
             const [command, ...opt] = line.split(' ');
             await runner.run(command, opt);
 
+            this.rl.once('line', lineHandler);
             this.rl.prompt();
-        });
-
+        }
+        
+        this.rl.prompt();        
+        this.rl.once('line', lineHandler);
         return this;
     }
 
