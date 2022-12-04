@@ -151,6 +151,9 @@ class YouTubeAPI {
 			if (e.message === 'No refresh token is set.') {
 				await this.refreshToken();
 				return await this.exec(reference, method, options);
+
+			} else if (e.message === "Video not found.") {
+				return undefined;
 			}
 
 			throw new Error('The API returned an error: ' + e);

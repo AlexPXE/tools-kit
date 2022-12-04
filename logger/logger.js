@@ -17,6 +17,7 @@ loggerBuilder
     .setStyleFn(STYLES.ERR)
     .setStyleFn(STYLES.ERR)
     .setStyleFn(STYLES.WARN)
+    .setStyleFn(STYLES.FAIL)
     .build()
 ;
 
@@ -26,6 +27,7 @@ voiceLoggerBuilder
     .setStyleFn(STYLES.ERR)
     .setStyleFn(STYLES.ERR)
     .setStyleFn(STYLES.WARN)
+    .setStyleFn(STYLES.FAIL)
     .build()
 ;
 

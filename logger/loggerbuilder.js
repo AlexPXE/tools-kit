@@ -81,7 +81,7 @@ class VoiceLoggerBuilder extends LoggerBuilder {
     
     tts = {
         voice: 'Microsoft Zira Desktop',
-        voiceSpeed: 0.80,        
+        voiceSpeed: 0.9,
         voiceEngine: saySync        
     };
 
@@ -123,7 +123,7 @@ class VoiceLoggerBuilder extends LoggerBuilder {
                 log(`${msgTypeStyle(msgType + ' ')}${sourceStyle(this.source)} ${msgStyle(...arguments)}`);
                 
                 if (this.ttsFlag === true) {
-                    this.voiceEngine.speak(`${msgType}. Message source. ${this.source}. Message. ${[...arguments].join(' ')}`, this.voice, this.voiceSpeed);
+                    this.voiceEngine.speak(`${[...arguments].join(' ')}`, this.voice, this.voiceSpeed);
                     this.ttsFlag = false;
                 }
                 return this;
@@ -141,7 +141,7 @@ class VoiceLoggerBuilder extends LoggerBuilder {
         return Object.assign(
             {
                 ttsFlag: false,
-                get say(){
+                get say() {
                     this.ttsFlag = true;
                     return this;
                 }

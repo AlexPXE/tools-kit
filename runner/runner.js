@@ -135,7 +135,7 @@ class VoiceRunner extends Runner {
      */
     voiceLogger({typeMsg, msg}) {
         if ( Object.hasOwn(this.msg, typeMsg) ) {
-            this.msg[typeMsg](msg);
+            this.msg.say[typeMsg](msg);
         } else {
             this.msg.say.warn(`Type of msg '${typeMsg}' does not exist.`);
             this.msg.say.info(msg);

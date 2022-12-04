@@ -14,22 +14,22 @@ export const
         },
         SUCCESS: {
             name: 'success',
-            message: 'SUCCESS.',
-            msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+            msgType: 'SUCCESS!',
+            msgTypeStyle: chalk.black.bgGreen,
             sourceStyle: chalk.hex("#09ff11").bgWhite,
             msgStyle: chalk.hex("#02fafa")
         },
         ERR: {
             name: 'err',
             msgType: 'ERROR!',
-            msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+            msgTypeStyle: chalk.white.bgRed,
             sourceStyle: chalk.hex("#09ff11").bgWhite,
             msgStyle: BOLD.red
         },
         FAIL: {
             name: 'fail',
             msgType: 'FAIL!',
-            msgTypeStyle: chalk.hex("#09ff00").bgWhite,
+            msgTypeStyle: chalk.white.bgRed,
             sourceStyle: chalk.hex("#09ff11").bgWhite,
             msgStyle: BOLD.hex("#ff078f")
         },
